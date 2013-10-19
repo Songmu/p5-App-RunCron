@@ -11,5 +11,5 @@ on configure => sub {
 
 on test => sub {
     requires 'Capture::Tiny';
-    requires 'Test::More';
+    requires 'Test::More', "0.98";
 };
