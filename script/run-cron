@@ -3,3 +3,23 @@ use strict;
 use warnings;
 use App::RunCron::CLI;
 App::RunCron::CLI->new(@ARGV)->run;
+
+__END__
+
+=head1 NAME
+
+run-cron - cron-runner
+
+=head1 SYNOPSIS
+
+    % run-cron [options] [command]
+        --logfile=s         # log file
+        --timestamp         # add timestamp or not
+        --reporter=s        # reporter           (Default: None)
+        --error_reporter=s  # error_reporter     (Default: Stdout)
+        --config|c=s        # configuration file (Default: run-cron.yml)
+        command             # command to be executed
+
+=head1 DESCRIPTION
+
+run-cron is wrapper command for cron jobs
