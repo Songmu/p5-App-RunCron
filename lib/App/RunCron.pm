@@ -11,7 +11,7 @@ use File::Temp qw(tempfile);
 use Class::Accessor::Lite (
     new => 1,
     ro  => [qw/timestamp command/],
-    rw  => [qw/logfile logpos/],
+    rw  => [qw/logfile logpos exit_code/],
 );
 
 sub logfh {
@@ -46,7 +46,7 @@ sub run {
         do { my $h = `hostname 2> /dev/null`; chomp $h; $h }
         . ' starting: ' . join(' ', @{ $self->command }) . "\n",
     );
-    my $exit_code = -1;
+    $self->exit_code(-1);
     unless (my $pid = fork) {
         if (defined $pid) {
             # child process
@@ -67,10 +67,11 @@ sub run {
         $self->_log($_) while <$logrh>;
         close $logrh;
         while (wait == -1) {}
-        $exit_code = $?;
+        $self->exit_code($?);
     }
 
     # end
+    my $exit_code = $self->exit_code;
     if ($exit_code == -1) {
         $self->_log("failed to execute command:$!\n");
     } elsif ($exit_code & 127) {
@@ -81,12 +82,22 @@ sub run {
 
     # print log to stdout
     if ($exit_code != 0) {
-        open my $fh, '<', $self->logfile or die "failed to open @{[$self->logfile]}:$!";
-        seek $fh, $self->logpos, SEEK_SET      or die "failed to seek to the appropriate position in logfile:$!";
-        print while <$fh>
+        print $self->report;
     }
 
     exit($exit_code >> 8);
+}
+
+sub report {
+    my $self = shift;
+
+    $self->{report} ||= do {
+        open my $fh, '<', $self->logfile or die "failed to open @{[$self->logfile]}:$!";
+        seek $fh, $self->logpos, SEEK_SET      or die "failed to seek to the appropriate position in logfile:$!";
+        my $report = '';
+        $report .= $_ while <$fh>;
+        $report;
+    }
 }
 
 sub _log {
