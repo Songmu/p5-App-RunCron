@@ -91,7 +91,8 @@ sub run {
 
 sub _log {
     my ($self, $line, $timestamp) = @_;
-    print $self->logfh (
+    my $logfh = $self->logfh;
+    print $logfh (
         ($timestamp || $self->timestamp ? '[' . scalar(localtime) . '] ' : ''),
         $line,
     );
