@@ -8,11 +8,11 @@ __END__
 
 =head1 NAME
 
-run-cron - cron-runner
+runcron - cron-runner
 
 =head1 SYNOPSIS
 
-    % run-cron [options] [command]
+    % runcron [options] [command]
         --logfile=s         # log file
         --timestamp         # add timestamp or not
         --reporter=s        # reporter           (Default: None)
@@ -22,4 +22,4 @@ run-cron - cron-runner
 
 =head1 DESCRIPTION
 
-run-cron is wrapper command for cron jobs
+runcron is wrapper command for cron jobs
