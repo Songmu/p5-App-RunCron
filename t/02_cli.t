@@ -22,7 +22,7 @@ subtest 'implicit loading runcron.yml' => sub {
     print $fh "timestamp: 1\n";
     close $fh;
 
-    my $cli = App::RunCron::CLI->new($^X, '-e', 'print "Hello"');
+    my $cli = App::RunCron::CLI->new(qw/--logfile=hoge/, $^X, '-e', 'print "Hello"');
     my $runner = $cli->{runner};
     isa_ok $runner, 'App::RunCron';
     ok $runner->timestamp;
