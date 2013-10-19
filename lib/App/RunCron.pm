@@ -10,7 +10,7 @@ use File::Temp qw(tempfile);
 
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/timestamp command/],
+    ro  => [qw/timestamp command reporter error_reporter/],
     rw  => [qw/logfile logpos exit_code/],
 );
 
@@ -57,12 +57,14 @@ sub run {
             close $logwh;
             exec @{ $self->command };
             die "exec(2) failed:$!:@{ $self->command }";
-        } else {
+        }
+        else {
             close $logrh;
             close $logwh;
             print $logfh, "fork(2) failed:$!\n" unless defined $pid;
         }
-    } else {
+    }
+    else {
         close $logwh;
         $self->_log($_) while <$logrh>;
         close $logrh;
@@ -74,15 +76,20 @@ sub run {
     my $exit_code = $self->exit_code;
     if ($exit_code == -1) {
         $self->_log("failed to execute command:$!\n");
-    } elsif ($exit_code & 127) {
+    }
+    elsif ($exit_code & 127) {
         $self->_log("command died with signal:" . ($exit_code & 127) . "\n");
-    } else {
+    }
+    else {
         $self->_log("command exited with code:" . ($exit_code >> 8) ."\n");
     }
 
     # print log to stdout
     if ($exit_code != 0) {
-        print $self->report;
+        $self->_send_error_report;
+    }
+    else {
+        $self->_send_report;
     }
 
     exit($exit_code >> 8);
@@ -98,6 +105,49 @@ sub report {
         $report .= $_ while <$fh>;
         $report;
     }
+}
+
+sub _send_report {
+    my $self = shift;
+
+    my $reporter = $self->reporter || 'None';
+    $self->_do_send_report($reporter);
+}
+
+sub _send_error_report {
+    my $self = shift;
+
+    my $reporter = $self->error_reporter || 'Stdout';
+    $self->_do_send_report($reporter);
+}
+
+sub _do_send_report {
+    my ($self, $reporter) = @_;
+
+    if (ref($reporter) && ref($reporter) eq 'CODE') {
+        $reporter->($self);
+    }
+    else {
+        my @args;
+        if (ref $reporter && ref($reporter) eq 'ARRAY') {
+            ($reporter, @args) = @$reporter;
+        }
+        _load_reporter($reporter)->new(@args)->run($self);
+    }
+}
+
+sub _load_reporter {
+    my $class = shift;
+    my $prefix = 'App::RunCron::Reporter';
+    unless ($class =~ s/^\+// || $class =~ /^$prefix/) {
+        $class = "$prefix\::$class";
+    }
+
+    my $file = $class;
+    $file =~ s!::!/!g;
+    require "$file.pm"; ## no citic
+
+    $class;
 }
 
 sub _log {

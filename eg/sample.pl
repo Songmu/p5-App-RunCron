@@ -10,7 +10,7 @@ use App::RunCron;
 my $runner = App::RunCron->new(
     timestamp => 1,
     command   => [qw/perl -E/, "die 'Hello'"],
-    logfile   => 'log.log',
+    logfile   => 'tmp/log.log',
 );
 
 $runner->run;
