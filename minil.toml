@@ -1,1 +1,1 @@
-name = "App-RunCron"
+name = "App-RunCron"badges = ["travis", "coveralls"]
