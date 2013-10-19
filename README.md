@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/Songmu/p5-App-RunCron.png?branch=master)](https://travis-ci.org/Songmu/p5-App-RunCron) [![Coverage Status](https://coveralls.io/repos/Songmu/p5-App-RunCron/badge.png?branch=master)](https://coveralls.io/r/Songmu/p5-App-RunCron?branch=master)
 # NAME
 
 App::RunCron - It's new $module

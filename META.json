@@ -43,15 +43,31 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "5.008005"
+            "Class::Accessor::Lite" : "0",
+            "Time::Piece" : "0",
+            "YAML::Tiny" : "0",
+            "parent" : "0",
+            "perl" : "5.008001"
          }
       },
       "test" : {
          "requires" : {
+            "Capture::Tiny" : "0",
             "Test::More" : "0.98"
          }
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/Songmu/p5-App-RunCron/issues"
+      },
+      "homepage" : "https://github.com/Songmu/p5-App-RunCron",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/Songmu/p5-App-RunCron.git",
+         "web" : "https://github.com/Songmu/p5-App-RunCron"
+      }
+   },
    "version" : "0.01"
 }
