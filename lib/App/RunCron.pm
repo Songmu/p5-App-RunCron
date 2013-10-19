@@ -5,8 +5,9 @@ use warnings;
 
 our $VERSION = "0.01";
 
-use Fcntl qw(SEEK_SET);
-use File::Temp qw(tempfile);
+use Fcntl       qw(SEEK_SET);
+use File::Temp  qw(tempfile);
+use Time::HiRes qw/gettimeofday/;
 
 use Class::Accessor::Lite (
     new => 1,
@@ -84,7 +85,6 @@ sub run {
         $self->_log("command exited with code:" . ($exit_code >> 8) ."\n");
     }
 
-    # print log to stdout
     if ($exit_code != 0) {
         $self->_send_error_report;
     }
@@ -151,11 +151,25 @@ sub _load_reporter {
 }
 
 sub _log {
-    my ($self, $line, $timestamp) = @_;
+    my ($self, $line) = @_;
     my $logfh = $self->logfh;
     print $logfh (
-        ($timestamp || $self->timestamp ? '[' . scalar(localtime) . '] ' : ''),
+        ($self->timestamp ? _timestamp() : ''),
         $line,
+    );
+}
+
+sub _timestamp {
+    my @tm = gettimeofday;
+    my @dt = localtime $tm[0];
+    sprintf('[%04d-%02d-%02d %02d:%02d:%02d.%06.0f] ',
+        $dt[5] + 1900,
+        $dt[4] + 1,
+        $dt[3],
+        $dt[2],
+        $dt[1],
+        $dt[0],
+        $tm[1],
     );
 }
 
