@@ -38,6 +38,7 @@ sub logfh {
 
 sub run {
     my $self = shift;
+    die "no command specified" unless @{ $self->command };
 
     my $logfh = $self->logfh;
     pipe my $logrh, my $logwh or die "failed to create pipe:$!";
