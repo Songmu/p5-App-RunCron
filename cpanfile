@@ -1,6 +1,7 @@
 requires 'Class::Accessor::Lite';
 requires 'Time::Piece';
 requires 'parent';
+requires 'YAML::Tiny';
 requires 'perl', '5.008001';
 
 on configure => sub {

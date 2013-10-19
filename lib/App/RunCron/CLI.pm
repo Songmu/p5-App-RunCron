@@ -6,6 +6,7 @@ use utf8;
 use Getopt::Long;
 use Pod::Usage;
 use Time::Piece;
+use YAML::Tiny ();
 
 use App::RunCron;
 
@@ -34,6 +35,26 @@ sub new_with_options {
     if ($opt{logfile}) {
         my $now = localtime;
         $opt{logfile} = $now->strftime($opt{logfile});
+    }
+
+    if (!$opt{config} && -e 'runcron.yml') {
+        $opt{config} = 'runcron.yml';
+    }
+    if ($opt{config}) {
+        my $config_file = $opt{config};
+        my $conf = eval { YAML::Tiny::LoadFile($config_file) };
+        if ($@) {
+            warn "Bad config: $config_file: $@";
+        }
+        else {
+            %opt = (
+                %$conf,
+                %opt,
+            );
+        }
+    }
+    for my $rep (qw/reporter error_reporter/){
+        $opt{$rep} = ucfirst $opt{$rep} if $opt{$rep};
     }
 
     bless {
