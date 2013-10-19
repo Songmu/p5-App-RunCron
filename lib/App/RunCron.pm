@@ -38,6 +38,12 @@ sub logfh {
 
 sub run {
     my $self = shift;
+    $self->_run;
+    exit($self->exit_code >> 8);
+}
+
+sub _run {
+    my $self = shift;
     die "no command specified" unless @{ $self->command };
 
     my $logfh = $self->logfh;
@@ -92,8 +98,6 @@ sub run {
     else {
         $self->_send_report;
     }
-
-    exit($exit_code >> 8);
 }
 
 sub report {
