@@ -129,15 +129,37 @@ sub _send_error_report {
 sub _do_send_report {
     my ($self, $reporter) = @_;
 
-    if (ref($reporter) && ref($reporter) eq 'CODE') {
-        $reporter->($self);
-    }
-    else {
-        my @args;
-        if (ref $reporter && ref($reporter) eq 'ARRAY') {
-            ($reporter, @args) = @$reporter;
+    eval {
+        if (ref($reporter) && ref($reporter) eq 'CODE') {
+            $reporter->($self);
         }
-        _load_reporter($reporter)->new(@args)->run($self);
+        else {
+            my @reporters;
+            if (ref $reporter && ref($reporter) eq 'ARRAY') {
+                my @stuffs = @$reporter;
+
+                while (@stuffs) {
+                    my $reporter_class = shift @stuffs;
+                    my $arg;
+                    if ($stuffs[0] && ref $stuffs[0]) {
+                        $arg = shift @stuffs;
+                    }
+                    push @reporters, [$reporter_class, $arg || ()];
+                }
+            }
+            else {
+                push @reporters, [$reporter];
+            }
+
+            for my $r (@reporters) {
+                my ($class, $arg) = @$r;
+                _load_reporter($class)->new($arg || ())->run($self);
+            }
+        }
+    };
+    if (my $err = $@) {
+        warn $self->report;
+        warn $err;
     }
 }
 
