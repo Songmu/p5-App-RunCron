@@ -17,7 +17,7 @@ runcron - cron-runner
         --timestamp         # add timestamp or not
         --reporter=s        # reporter           (Default: None)
         --error_reporter=s  # error_reporter     (Default: Stdout)
-        --config|c=s        # configuration file (Default: run-cron.yml)
+        --config|c=s        # configuration file (Default: runcron.yml)
         command             # command to be executed
 
 =head1 DESCRIPTION
