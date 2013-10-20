@@ -12,13 +12,13 @@ use Time::HiRes qw/gettimeofday/;
 use Class::Accessor::Lite (
     new => 1,
     ro  => [qw/timestamp command reporter error_reporter/],
-    rw  => [qw/logfile logpos exit_code/],
+    rw  => [qw/logfile logpos exit_code _finished/],
 );
 
-sub logfh {
+sub _logfh {
     my $self = shift;
 
-    $self->{logfh} ||= do {
+    $self->{_logfh} ||= do {
         my $logfh;
         my $logfile = $self->{logfile};
         if ($logfile) {
@@ -38,15 +38,20 @@ sub logfh {
 
 sub run {
     my $self = shift;
-    $self->_run;
-    exit $self->child_exit_code;
+    if (!$self->_finished) {
+        $self->_run;
+        exit $self->child_exit_code;
+    }
+    else {
+        warn "already run. can't rerun.\n";
+    }
 }
 
 sub _run {
     my $self = shift;
     die "no command specified" unless @{ $self->command };
 
-    my $logfh = $self->logfh;
+    my $logfh = $self->_logfh;
     pipe my $logrh, my $logwh or die "failed to create pipe:$!";
 
     # exec
@@ -82,6 +87,7 @@ sub _run {
 
     # end
     $self->_log($self->result_line. "\n");
+    $self->_finished(1);
 
     if ($self->is_success) {
         $self->_send_report;
@@ -188,7 +194,7 @@ sub _load_reporter {
 
 sub _log {
     my ($self, $line) = @_;
-    my $logfh = $self->logfh;
+    my $logfh = $self->_logfh;
     print $logfh (
         ($self->timestamp ? _timestamp() : ''),
         $line,
