@@ -202,19 +202,86 @@ sub _timestamp {
 
 __END__
 
+=for stopwords cron crontab logfile eg
+
 =encoding utf-8
 
 =head1 NAME
 
-App::RunCron - It's new $module
+App::RunCron - making wrapper script for crontab
 
 =head1 SYNOPSIS
 
     use App::RunCron;
+    my $runner = App::RunCron->new(
+        timestamp => 1,
+        command   => [@ARGV],
+        logfile   => 'tmp/log%Y-%m-%d.log',
+        reporter  => 'Stdout',
+        error_reporter => [
+            'Stdout',
+            'File', {
+                file => 'tmp/error%Y-%m-%d.log'
+            },
+        ],
+    );
+    $runner->run;
 
 =head1 DESCRIPTION
 
-App::RunCron is ...
+App::RunCron is a software for making wrapper script for running cron tasks.
+
+App::RunCron can separate reporting way if the command execution success or failed
+(i.e. fails to start, or returns a non-zero exit code, or killed by a signal).
+It is handled by `reporter` and `error_reporter` option.
+
+By default, `reporter` is 'None' and `error_reporter` is 'Stdout'.
+It prints the outputs the command if and only if the command execution failed.
+In other words, this behaviour causes L<cron(8)> to send mail when and only when an error occurs.
+
+Default behaviour is same like L<cronlog|https://github.com/kazuho/kaztools/blob/master/cronlog>.
+
+=head1 OPTIONS
+
+=head2 timestamp
+
+Add timestamp or not. (Default: undef)
+
+=head2 command
+
+command to be executed. (Required)
+
+=head2 logfile
+
+If logfile is specified, stdout and stderr of the command will be logged to the file so that it could be used for later inspection. 
+If not specified, the outputs will not be logged.
+The logfile can be a C<strftime> format. eg. '%Y-%m-%d.log'. (NOTICE: '%' must be escaped in crontab.)
+
+=head2 reporter|error_reporter
+
+The reporter and error_reporter can be like following.
+
+=over
+
+=item C<< $module_name >>
+
+=item C<< [$module_name[, \%opt], ...] >>
+
+=item C<< $coderef >>
+
+=back
+
+I<$module_name> package name of the plugin. You can write it as two form like L<DBIx::Class>:
+
+    reporter => 'Stdout',    # => loads App::RunCron::Reporter::Stdout
+
+If you want to load a plugin in your own name space, use the '+' character before a package name, like following:
+
+    reporter => '+MyApp::Reporter::Foo', # => loads MyApp::Reporter::Foo
+
+=head3 SEE ALSO
+
+L<runcron>, L<cronlog|https://github.com/kazuho/kaztools/blob/master/cronlog>
 
 =head1 LICENSE
 
@@ -228,4 +295,3 @@ it under the same terms as Perl itself.
 Songmu E<lt>y.songmu@gmail.comE<gt>
 
 =cut
-

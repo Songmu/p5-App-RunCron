@@ -12,14 +12,30 @@ runcron - cron-runner
 
 =head1 SYNOPSIS
 
-    % runcron [options] [command]
+    % runcron [options] -- [command]
         --logfile=s         # log file
         --timestamp         # add timestamp or not
         --reporter=s        # reporter           (Default: None)
         --error_reporter=s  # error_reporter     (Default: Stdout)
-        --config|c=s        # configuration file (Default: runcron.yml)
+        --config|c=s        # configuration file (Default: runcron.yml (Optional))
         command             # command to be executed
 
 =head1 DESCRIPTION
 
-runcron is wrapper command for cron jobs
+runcron is wrapper command for cron jobs inspired by L<cronlog|https://github.com/kazuho/kaztools/blob/master/cronlog>.
+
+Default behaviour is same like cronlog.
+
+=head1 CONFIUGRATION FILE
+
+like as follows.
+
+    timestamp: 1
+    reporter:  Stdout
+    error_reporter:
+        - Stdout
+        - "+MyApp::Reporter::IRC"
+
+=head3 SEE ALSO
+
+L<App::RunCron>, L<cronlog|https://github.com/kazuho/kaztools/blob/master/cronlog>

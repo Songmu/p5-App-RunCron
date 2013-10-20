@@ -15,7 +15,7 @@ sub new {
 
     local @ARGV = @argv;
     my $p = Getopt::Long::Parser->new(
-        config => [qw/pass_through posix_default no_ignore_case bundling auto_help/],
+        config => [qw/posix_default no_ignore_case bundling auto_help/],
     );
     $p->getoptions(\my %opt, qw/
         logfile=s
