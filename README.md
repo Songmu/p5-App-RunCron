@@ -66,6 +66,32 @@ If you want to load a plugin in your own name space, use the '+' character befor
 
     reporter => '+MyApp::Reporter::Foo', # => loads MyApp::Reporter::Foo
 
+## METHODS AND ACCESORS
+
+### `$self->run`
+
+Running the job.
+
+### `my $str  = $self->result_line`
+
+One line result string of the command.
+
+### `my $str  = $self->report`
+
+Retrieve the output of the command.
+
+### `my $bool = $self->is_success`
+
+command is success or not.
+
+### `my $int  = $self->exit_code`
+
+same as `$?`
+
+### `my $int  = $self->child_exit_code`
+
+exit code of child process.
+
 ### SEE ALSO
 
 [runcron](http://search.cpan.org/perldoc?runcron), [cronlog](https://github.com/kazuho/kaztools/blob/master/cronlog)

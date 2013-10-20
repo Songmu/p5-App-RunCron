@@ -39,7 +39,7 @@ sub logfh {
 sub run {
     my $self = shift;
     $self->_run;
-    exit($self->exit_code >> 8);
+    exit $self->child_exit_code;
 }
 
 sub _run {
@@ -81,23 +81,32 @@ sub _run {
     }
 
     # end
-    my $exit_code = $self->exit_code;
-    if ($exit_code == -1) {
-        $self->_log("failed to execute command:$!\n");
-    }
-    elsif ($exit_code & 127) {
-        $self->_log("command died with signal:" . ($exit_code & 127) . "\n");
-    }
-    else {
-        $self->_log("command exited with code:" . ($exit_code >> 8) ."\n");
-    }
+    $self->_log($self->result_line. "\n");
 
-    if ($exit_code != 0) {
-        $self->_send_error_report;
-    }
-    else {
+    if ($self->is_success) {
         $self->_send_report;
     }
+    else {
+        $self->_send_error_report;
+    }
+}
+
+sub child_exit_code { shift->exit_code >> 8 }
+sub is_success      { shift->exit_code == 0 }
+sub result_line     {
+    my $self = shift;
+    $self->{result_line} ||= do {
+        my $exit_code = $self->exit_code;
+        if ($exit_code == -1) {
+            "failed to execute command:$!";
+        }
+        elsif ($exit_code & 127) {
+            "command died with signal:" . ($exit_code & 127);
+        }
+        else {
+            "command exited with code:" . $self->child_exit_code;
+        }
+    };
 }
 
 sub report {
@@ -278,6 +287,32 @@ I<$module_name> package name of the plugin. You can write it as two form like L<
 If you want to load a plugin in your own name space, use the '+' character before a package name, like following:
 
     reporter => '+MyApp::Reporter::Foo', # => loads MyApp::Reporter::Foo
+
+=head2 METHODS AND ACCESORS
+
+=head3 C<< $self->run >>
+
+Running the job.
+
+=head3 C<< my $str  = $self->result_line >>
+
+One line result string of the command.
+
+=head3 C<< my $str  = $self->report >>
+
+Retrieve the output of the command.
+
+=head3 C<< my $bool = $self->is_success >>
+
+command is success or not.
+
+=head3 C<< my $int  = $self->exit_code >>
+
+same as C<$?>
+
+=head3 C<< my $int  = $self->child_exit_code >>
+
+exit code of child process.
 
 =head3 SEE ALSO
 
