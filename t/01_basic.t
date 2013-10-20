@@ -96,4 +96,21 @@ subtest 'reporter stdout' => sub {
     is $runner->exit_code, 0;
 };
 
+subtest 'invalid reporter' => sub {
+    my $runner = App::RunCron->new(
+        command   => [$^X, '-e', qq[print "Hello\n"]],
+        reporter  => sub {
+            my $runner = shift;
+            isa_ok $runner, 'App::RunCron';
+            die 'Oops!'
+        },
+    );
+    my ($stdout, $stderr) = capture { $runner->_run };
+
+    ok !$stdout;
+    like $stderr, qr/Hello\ncommand exited with code:0\nOops!/;
+
+    is $runner->exit_code, 0;
+};
+
 done_testing;
