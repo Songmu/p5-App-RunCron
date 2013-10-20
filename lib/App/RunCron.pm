@@ -300,11 +300,11 @@ If you want to load a plugin in your own name space, use the '+' character befor
 
 Running the job.
 
-=head3 C<< my $str  = $self->result_line >>
+=head3 C<< my $str = $self->result_line >>
 
 One line result string of the command.
 
-=head3 C<< my $str  = $self->report >>
+=head3 C<< my $str = $self->report >>
 
 Retrieve the output of the command.
 
@@ -312,15 +312,15 @@ Retrieve the output of the command.
 
 command is success or not.
 
-=head3 C<< my $int  = $self->exit_code >>
+=head3 C<< my $int = $self->exit_code >>
 
 same as C<$?>
 
-=head3 C<< my $int  = $self->child_exit_code >>
+=head3 C<< my $int = $self->child_exit_code >>
 
 exit code of child process.
 
-=head3 SEE ALSO
+=head1 SEE ALSO
 
 L<runcron>, L<cronlog|https://github.com/kazuho/kaztools/blob/master/cronlog>
 

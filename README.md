@@ -72,11 +72,11 @@ If you want to load a plugin in your own name space, use the '+' character befor
 
 Running the job.
 
-### `my $str  = $self->result_line`
+### `my $str = $self->result_line`
 
 One line result string of the command.
 
-### `my $str  = $self->report`
+### `my $str = $self->report`
 
 Retrieve the output of the command.
 
@@ -84,15 +84,15 @@ Retrieve the output of the command.
 
 command is success or not.
 
-### `my $int  = $self->exit_code`
+### `my $int = $self->exit_code`
 
 same as `$?`
 
-### `my $int  = $self->child_exit_code`
+### `my $int = $self->child_exit_code`
 
 exit code of child process.
 
-### SEE ALSO
+# SEE ALSO
 
 [runcron](http://search.cpan.org/perldoc?runcron), [cronlog](https://github.com/kazuho/kaztools/blob/master/cronlog)
 
