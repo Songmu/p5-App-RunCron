@@ -4,7 +4,8 @@ use warnings;
 use utf8;
 
 use App::RunCron;
-use Test::More;
+use Test::More ();
+use Test::Mock::Guard;
 use YAML::Tiny;
 
 use parent 'Exporter';
@@ -12,9 +13,9 @@ use parent 'Exporter';
 our @EXPORT = qw/runcron_yml_ok mock_runcron/;
 
 sub runcron_yml_ok {
-    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my $yml         = shift || 'runcron.yml';
+    my $description = shift || "test of $yml";
 
-    my $yml = shift || 'runcron.yml';
     eval {
         my $conf = YAML::Tiny::LoadFile($yml);
         my $obj = App::RunCron->new($conf);
@@ -33,12 +34,14 @@ sub runcron_yml_ok {
             App::RunCron::_load_reporter($class)->new($arg || ());
         }
     };
-
-    if ($@) {
-        fail $@;
+    my $err = $@;
+    my $BUILDER = Test::More->builder;
+    if ($err) {
+        $BUILDER->ok(0, $description);
+        $BUILDER->diag($err);
     }
     else {
-        ok "$yml ok";
+        $BUILDER->ok(1, $description);
     }
 }
 
