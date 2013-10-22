@@ -1,6 +1,9 @@
 Revision history for Perl extension App-RunCron
 
 {{$NEXT}}
+
+0.02 2013-10-22T18:52:41Z
+    - add test framework for RunCron
     - use `mkpath` for more safety in Reporter::File
 
 0.01 2013-10-20T07:28:35Z

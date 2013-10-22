@@ -55,7 +55,9 @@
             "Capture::Tiny" : "0",
             "File::pushd" : "0",
             "Test::Exit" : "0",
-            "Test::More" : "0.98"
+            "Test::Mock::Guard" : "0",
+            "Test::More" : "0.98",
+            "Test::Tester" : "0"
          }
       }
    },
@@ -71,5 +73,5 @@
          "web" : "https://github.com/Songmu/p5-App-RunCron"
       }
    },
-   "version" : "0.01"
+   "version" : "0.02"
 }
