@@ -14,5 +14,6 @@ on test => sub {
     requires 'Capture::Tiny';
     requires 'File::pushd';
     requires 'Test::Exit';
+    requires 'Test::Tester';
     requires 'Test::More', "0.98";
 };
