@@ -149,22 +149,7 @@ sub _do_send_report {
             $reporter->($self);
         }
         else {
-            my @reporters;
-            if (ref $reporter && ref($reporter) eq 'ARRAY') {
-                my @stuffs = @$reporter;
-
-                while (@stuffs) {
-                    my $reporter_class = shift @stuffs;
-                    my $arg;
-                    if ($stuffs[0] && ref $stuffs[0]) {
-                        $arg = shift @stuffs;
-                    }
-                    push @reporters, [$reporter_class, $arg || ()];
-                }
-            }
-            else {
-                push @reporters, [$reporter];
-            }
+            my @reporters = _retrieve_reporters($reporter);
 
             for my $r (@reporters) {
                 my ($class, $arg) = @$r;
@@ -176,6 +161,27 @@ sub _do_send_report {
         warn $self->report;
         warn $err;
     }
+}
+
+sub _retrieve_reporters {
+    my $reporter = shift;
+    my @reporters;
+    if (ref $reporter && ref($reporter) eq 'ARRAY') {
+        my @stuffs = @$reporter;
+
+        while (@stuffs) {
+            my $reporter_class = shift @stuffs;
+            my $arg;
+            if ($stuffs[0] && ref $stuffs[0]) {
+                $arg = shift @stuffs;
+            }
+            push @reporters, [$reporter_class, $arg || ()];
+        }
+    }
+    else {
+        push @reporters, [$reporter];
+    }
+    @reporters;
 }
 
 sub _load_reporter {
