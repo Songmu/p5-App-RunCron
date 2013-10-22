@@ -65,3 +65,53 @@ sub mock_runcron {
 }
 
 1;
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+Test::App::RunCron - test framework for App::RunCron
+
+=head1 SYNOPSIS
+
+    use Test::App::RunCron;
+
+    runcron_yml_ok 'runcron.yml';
+
+    my $mock_runcron = mock_runcron;
+    eval {
+        MyApp::Reporter->new->run($mock_runcron);
+    };
+    ok !$@, 'my reporter ok';
+
+=head1 DESCRIPTION
+
+Test::App::RunCron is a test framework for App::RunCron
+
+=head1 FUNCTIONS
+
+=head2 C<< runcron_yml_ok($yml_file:Str) >>
+
+Test C<$yml_file> is valid or not.
+
+=head2 C<< $mock_runcron = mock_runcron(%opt) >>
+
+Return mock object of C<App::RunCron>. It is utility for testing your custom RunCron::Reporter.
+
+=head1 SEE ALSO
+
+L<runcron>, L<App::RunCron>
+
+=head1 LICENSE
+
+Copyright (C) Songmu.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+Songmu E<lt>y.songmu@gmail.comE<gt>
+
+=cut
