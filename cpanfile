@@ -15,5 +15,6 @@ on test => sub {
     requires 'File::pushd';
     requires 'Test::Exit';
     requires 'Test::Tester';
+    requires 'Test::Mock::Guard';
     requires 'Test::More', "0.98";
 };

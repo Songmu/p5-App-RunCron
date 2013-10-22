@@ -5,7 +5,7 @@ use utf8;
 
 use App::RunCron;
 use Test::More ();
-use Test::Mock::Guard;
+use Test::Mock::Guard ();
 use YAML::Tiny;
 
 use parent 'Exporter';
@@ -46,7 +46,22 @@ sub runcron_yml_ok {
 }
 
 sub mock_runcron {
-    my %args = @_ == 1 ? $_[0] : @_;
+    my %args = @_ == 1 ? %{$_[0]} : @_;
+
+    my %mock;
+    for my $key (keys %args) {
+        $mock{$key} = sub { $args{$key} };
+    }
+    my $guard = Test::Mock::Guard->new('App::RunCron' => {
+        run             => sub { die "can't run mock object" },
+        command         => sub { [qw/dummy/] },
+        report          => sub { 'mock report' },
+        exit_code       => sub { 0 },
+        %mock,
+    });
+    my $mock = App::RunCron->new;
+    $mock->{_guard} = $guard;
+    $mock;
 }
 
 1;
