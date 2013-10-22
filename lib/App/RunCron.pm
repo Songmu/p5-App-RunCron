@@ -8,6 +8,7 @@ our $VERSION = "0.03";
 use Fcntl       qw(SEEK_SET);
 use File::Temp  qw(tempfile);
 use Time::HiRes qw/gettimeofday/;
+use Sys::Hostname;
 
 use Class::Accessor::Lite (
     new => 1,
@@ -55,10 +56,7 @@ sub _run {
     pipe my $logrh, my $logwh or die "failed to create pipe:$!";
 
     # exec
-    $self->_log(
-        do { my $h = `hostname 2> /dev/null`; chomp $h; $h }
-        . ' starting: ' . join(' ', @{ $self->command }) . "\n",
-    );
+    $self->_log(hostname . ' starting: ' . join(' ', @{ $self->command }) . "\n");
     $self->exit_code(-1);
     unless (my $pid = fork) {
         if (defined $pid) {
