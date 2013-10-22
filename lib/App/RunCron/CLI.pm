@@ -26,6 +26,9 @@ sub new {
     /) or pod2usage(1);
 
     $opt{command} = [@ARGV];
+    for my $rep (qw/reporter error_reporter/){
+        $opt{$rep} = ucfirst $opt{$rep} if $opt{$rep};
+    }
     $class->new_with_options(%opt);
 }
 
@@ -52,9 +55,6 @@ sub new_with_options {
                 %opt,
             );
         }
-    }
-    for my $rep (qw/reporter error_reporter/){
-        $opt{$rep} = ucfirst $opt{$rep} if $opt{$rep};
     }
 
     bless {
