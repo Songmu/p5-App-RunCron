@@ -1,6 +1,7 @@
 Revision history for Perl extension App-RunCron
 
 {{$NEXT}}
+    - `child_signal` and `child_exit_code` return -1 if command is not executed
     - use Sys::Hostename for portability
 
 0.03 2013-10-22T19:03:28Z

@@ -84,8 +84,8 @@ sub _run {
     }
 
     # end
-    $self->_log($self->result_line. "\n");
     $self->_finished(1);
+    $self->_log($self->result_line. "\n");
 
     if ($self->is_success) {
         $self->_send_report;
@@ -95,17 +95,33 @@ sub _run {
     }
 }
 
-sub child_exit_code { shift->exit_code >> 8 }
-sub is_success      { shift->exit_code == 0 }
-sub result_line     {
+sub child_exit_code {
+    my $self = shift;
+    my $exit_code = $self->exit_code;
+    return $exit_code if !$exit_code || $exit_code < 0;
+
+    $self->exit_code >> 8;
+}
+
+sub child_signal {
+    my $self = shift;
+    my $exit_code = $self->exit_code;
+    return $exit_code if !$exit_code || $exit_code < 0;
+
+    $self->exit_code & 127;
+}
+
+sub is_success { shift->exit_code == 0 }
+
+sub result_line {
     my $self = shift;
     $self->{result_line} ||= do {
         my $exit_code = $self->exit_code;
         if ($exit_code == -1) {
             "failed to execute command:$!";
         }
-        elsif ($exit_code & 127) {
-            "command died with signal:" . ($exit_code & 127);
+        elsif ($self->child_signal) {
+            "command died with signal:" . $self->child_signal;
         }
         else {
             "command exited with code:" . $self->child_exit_code;
@@ -117,8 +133,8 @@ sub report {
     my $self = shift;
 
     $self->{report} ||= do {
-        open my $fh, '<', $self->logfile or die "failed to open @{[$self->logfile]}:$!";
-        seek $fh, $self->logpos, SEEK_SET      or die "failed to seek to the appropriate position in logfile:$!";
+        open my $fh, '<', $self->logfile  or die "failed to open @{[$self->logfile]}:$!";
+        seek $fh, $self->logpos, SEEK_SET or die "failed to seek to the appropriate position in logfile:$!";
         my $report = '';
         $report .= $_ while <$fh>;
         $report;
