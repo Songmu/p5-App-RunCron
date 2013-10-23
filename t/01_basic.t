@@ -96,6 +96,36 @@ subtest 'reporter stdout' => sub {
     is $runner->exit_code, 0;
 };
 
+subtest 'reporter:Stdout common_reporter:File' => sub {
+    my $dir = tempdir(CLEANUP => 1);
+    my $logfile = File::Spec->catfile($dir, 'log.log');
+
+    ok ! -e $logfile;
+    my $runner = App::RunCron->new(
+        command   => [$^X, '-e', qq[print "Hello\n"]],
+        common_reporter => [
+            'File' => {
+                file => $logfile,
+            },
+        ],
+        reporter  => 'Stdout',
+    );
+    my ($stdout, $stderr) = capture { $runner->_run };
+    ok -e $logfile;
+
+    like $stdout, qr/Hello\ncommand exited with code:0$/;
+    ok !$stderr;
+
+    my $content = do {
+        local $/;
+        open my $fh, '<', $logfile or die $!;
+        <$fh>
+    };
+    like $content, qr/Hello\ncommand exited with code:0$/;
+
+    is $runner->exit_code, 0;
+};
+
 subtest 'invalid reporter' => sub {
     my $runner = App::RunCron->new(
         command   => [$^X, '-e', qq[print "Hello\n"]],

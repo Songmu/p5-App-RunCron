@@ -13,12 +13,13 @@ runcron - cron-runner
 =head1 SYNOPSIS
 
     % runcron [options] -- [command]
-        --logfile=s         # log file
-        --timestamp         # add timestamp or not
-        --reporter=s        # reporter           (Default: None)
-        --error_reporter=s  # error_reporter     (Default: Stdout)
-        --config|c=s        # configuration file (Default: runcron.yml (Optional))
-        command             # command to be executed
+        --logfile=s         # log file               (Optional)
+        --timestamp         # add timestamp or not   (Default: undef)
+        --reporter=s        # reporter               (Default: None)
+        --error_reporter=s  # error_reporter         (Default: Stdout)
+        --common_reporter=s # common_reporter        (Optional)
+        --config|c=s        # configuration file     (Default: runcron.yml (Optional))
+        command             # command to be executed (Required)
 
 =head1 DESCRIPTION
 

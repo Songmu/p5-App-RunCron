@@ -21,12 +21,9 @@ sub runcron_yml_ok {
         my $obj = App::RunCron->new($conf);
 
         my @reporters;
-        if ($conf->{reporter}) {
-            @reporters = App::RunCron::_retrieve_reporters($conf->{reporter});
-        }
 
-        if ($conf->{error_reporter}) {
-            @reporters = App::RunCron::_retrieve_reporters($conf->{error_reporter});
+        for my $reporter_kind (qw/reporter error_reporter common_reporter/) {
+            push @reporters, App::RunCron::_retrieve_reporters($conf->{$reporter_kind}) if $conf->{$reporter_kind};
         }
 
         for my $r (@reporters) {

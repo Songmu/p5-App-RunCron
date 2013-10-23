@@ -22,6 +22,7 @@ sub new {
         timestamp
         reporter=s
         error_reporter=s
+        common_reporter=s
         config|c=s
     /) or pod2usage(1);
 

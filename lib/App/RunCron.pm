@@ -12,7 +12,7 @@ use Sys::Hostname;
 
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/timestamp command reporter error_reporter/],
+    ro  => [qw/timestamp command reporter error_reporter common_reporter/],
     rw  => [qw/logfile logpos exit_code _finished/],
 );
 
@@ -145,29 +145,32 @@ sub _send_report {
     my $self = shift;
 
     my $reporter = $self->reporter || 'None';
-    $self->_do_send_report($reporter);
+    $self->_do_send_report($reporter, $self->common_reporter || ());
 }
 
 sub _send_error_report {
     my $self = shift;
 
     my $reporter = $self->error_reporter || 'Stdout';
-    $self->_do_send_report($reporter);
+    $self->_do_send_report($reporter, $self->common_reporter || ());
 }
 
 sub _do_send_report {
-    my ($self, $reporter) = @_;
+    my ($self, @reporters) = @_;
 
     eval {
-        if (ref($reporter) && ref($reporter) eq 'CODE') {
-            $reporter->($self);
-        }
-        else {
-            my @reporters = _retrieve_reporters($reporter);
+        # XXX error handling
+        for my $reporter (@reporters) {
+            if (ref($reporter) && ref($reporter) eq 'CODE') {
+                $reporter->($self);
+            }
+            else {
+                my @reporters = _retrieve_reporters($reporter);
 
-            for my $r (@reporters) {
-                my ($class, $arg) = @$r;
-                _load_reporter($class)->new($arg || ())->run($self);
+                for my $r (@reporters) {
+                    my ($class, $arg) = @$r;
+                    _load_reporter($class)->new($arg || ())->run($self);
+                }
             }
         }
     };

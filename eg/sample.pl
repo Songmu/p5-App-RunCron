@@ -9,7 +9,7 @@ use App::RunCron;
 
 my $runner = App::RunCron->new(
     timestamp => 1,
-    command   => [qw/perl -E/, "print 'Hello'"],
+    command   => [qw/perl -E/, qq[print "Hello\\n"]],
     logfile   => 'tmp/log.log',
     reporter  => [
         'Stdout',
@@ -17,6 +17,7 @@ my $runner = App::RunCron->new(
             file => 'tmp/result%Y-%m-%d.log'
         },
     ],
+    common_reporter => 'Stdout',
 );
 
 $runner->run;
