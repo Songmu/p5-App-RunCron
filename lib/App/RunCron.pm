@@ -48,6 +48,11 @@ sub run {
     }
 }
 
+sub command_str {
+    my $self = shift;
+    $self->{command_str} ||= join ' ', @{ $self->command };
+}
+
 sub _run {
     my $self = shift;
     die "no command specified" unless @{ $self->command };
@@ -56,7 +61,7 @@ sub _run {
     pipe my $logrh, my $logwh or die "failed to create pipe:$!";
 
     # exec
-    $self->_log(hostname . ' starting: ' . join(' ', @{ $self->command }) . "\n");
+    $self->_log(sprintf("%s tag:[%s] starting: %s\n", hostname, $self->tag || '', $self->command_str));
     $self->exit_code(-1);
     unless (my $pid = fork) {
         if (defined $pid) {
