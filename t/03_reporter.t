@@ -10,7 +10,7 @@ ok $class->can('run');
 eval { $class->run };
 like $@, qr/abstract/;
 
-for my $reporter (qw/Stdout File None/) {
+for my $reporter (qw/Stdout File None Fluentd/) {
     my $class = "App::RunCron::Reporter::$reporter";
     use_ok $class;
     ok $class->can('new');

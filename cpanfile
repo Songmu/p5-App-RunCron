@@ -4,6 +4,8 @@ requires 'parent';
 requires 'YAML::Tiny';
 requires 'perl', '5.008001';
 
+suggests 'Fluent::Logger';
+
 on configure => sub {
     requires 'CPAN::Meta';
     requires 'CPAN::Meta::Prereqs';
