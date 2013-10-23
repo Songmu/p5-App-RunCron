@@ -3,7 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
-our $VERSION = "0.04";
+our $VERSION = "0.05";
 
 use Fcntl       qw(SEEK_SET);
 use File::Temp  qw(tempfile);
@@ -289,6 +289,10 @@ Default behaviour is same like L<cronlog|https://github.com/kazuho/kaztools/blob
 =head2 timestamp
 
 Add timestamp or not. (Default: undef)
+
+=head2 tag
+
+Identifier of the job name. (Optional)
 
 =head2 command
 

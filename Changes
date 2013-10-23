@@ -2,6 +2,10 @@ Revision history for Perl extension App-RunCron
 
 {{$NEXT}}
 
+0.05 2013-10-23T11:11:35Z
+    - add Reporter::Fluentd (EXPERIMENTAL)
+    - add `tag` option
+
 0.04 2013-10-23T09:29:44Z
     - add `common_reporter` option
     - add writing sperator line process in Reporter::File

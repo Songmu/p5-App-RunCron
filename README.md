@@ -40,6 +40,10 @@ Default behaviour is same like [cronlog](https://github.com/kazuho/kaztools/blob
 
 Add timestamp or not. (Default: undef)
 
+## tag
+
+Identifier of the job name. (Optional)
+
 ## command
 
 command to be executed. (Required)
