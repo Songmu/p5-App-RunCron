@@ -30,7 +30,7 @@ sub run {
     mkpath $dir;
 
     open my $fh, '>>', $file or die $!;
-    print $fh $runner->report;
+    print $fh '-'x78, "\n" . $runner->report;
     close $fh;
 }
 
