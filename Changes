@@ -1,6 +1,8 @@
 Revision history for Perl extension App-RunCron
 
 {{$NEXT}}
+
+0.04 2013-10-23T09:29:44Z
     - add `common_reporter` option
     - add writing sperator line process in Reporter::File
     - `child_signal` and `child_exit_code` return -1 if command is not executed
