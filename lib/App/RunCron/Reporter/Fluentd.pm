@@ -11,16 +11,19 @@ sub new {
     my $class = shift;
     my %args = @_ == 1 ? %{$_[0]} : @_;
 
-    $args{tag_prefix} ||= 'runcron';
+    my $tag = delete $args{tag} || 'runcron';
 
-    bless \%args, $class;
+    bless {
+        args => \%args,
+        tag  => $tag,
+    }, $class;
 }
 
 sub run {
     my ($self, $runcron) = @_;
 
-    my $logger = Fluent::Logger->new(%$self);
-    $logger->post('' => {
+    my $logger = Fluent::Logger->new(%{ $self->{args} });
+    $logger->post($self->{tag} => {
         report          => $runcron->report,
         command         => join(' ', @{ $runcron->command }),
         result_line     => $runcron->result_line,
