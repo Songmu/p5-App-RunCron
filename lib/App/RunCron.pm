@@ -295,9 +295,11 @@ If logfile is specified, stdout and stderr of the command will be logged to the 
 If not specified, the outputs will not be logged.
 The logfile can be a C<strftime> format. eg. '%Y-%m-%d.log'. (NOTICE: '%' must be escaped in crontab.)
 
-=head2 reporter|error_reporter
+=head2 reporter|error_reporter|common_reporter
 
-The reporter and error_reporter can be like following.
+C<common_reporter> is optional, processing after C<(error_)?reporter> is handled.
+
+The C<reporter>, C<error_reporter> and C<common_reporter> can be like following.
 
 =over
 
@@ -309,7 +311,7 @@ The reporter and error_reporter can be like following.
 
 =back
 
-I<$module_name> package name of the plugin. You can write it as two form like L<DBIx::Class>:
+I<$module_name> package name of the plugin. You can write it as two form like L<Plack::Middleware>:
 
     reporter => 'Stdout',    # => loads App::RunCron::Reporter::Stdout
 
@@ -342,6 +344,10 @@ same as C<$?>
 =head3 C<< my $int = $self->child_exit_code >>
 
 exit code of child process.
+
+=head3 C<< my $int = $self->child_signal >>
+
+signal number if chile process accepted a signal.
 
 =head1 SEE ALSO
 
