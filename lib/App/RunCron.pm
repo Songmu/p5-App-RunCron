@@ -12,7 +12,7 @@ use Sys::Hostname;
 
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/timestamp command reporter error_reporter common_reporter/],
+    ro  => [qw/timestamp command reporter error_reporter common_reporter tag/],
     rw  => [qw/logfile logpos exit_code _finished/],
 );
 

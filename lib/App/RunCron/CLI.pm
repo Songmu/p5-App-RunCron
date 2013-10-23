@@ -23,6 +23,7 @@ sub new {
         reporter=s
         error_reporter=s
         common_reporter=s
+        tag|t=s
         config|c=s
     /) or pod2usage(1);
 

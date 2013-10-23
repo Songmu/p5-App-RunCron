@@ -18,6 +18,7 @@ runcron - cron-runner
         --reporter=s        # reporter               (Default: None)
         --error_reporter=s  # error_reporter         (Default: Stdout)
         --common_reporter=s # common_reporter        (Optional)
+        --tag=s             # tag                    (Optional)
         --config|c=s        # configuration file     (Default: runcron.yml (Optional))
         command             # command to be executed (Required)
 

@@ -31,6 +31,7 @@ sub run {
         child_exit_code => $runcron->child_exit_code,
         exit_code       => $runcron->exit_code,
         child_signal    => $runcron->child_signal,
+        (defined $runcron->tag ? (tag => $runcron->tag) : ()),
     });
 }
 
