@@ -4,6 +4,8 @@ requires 'parent';
 requires 'YAML::Tiny';
 requires 'perl', '5.008001';
 
+recommends 'PerlIO::Util';
+
 suggests 'Fluent::Logger';
 
 on configure => sub {

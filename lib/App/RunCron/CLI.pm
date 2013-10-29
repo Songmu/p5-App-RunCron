@@ -20,6 +20,7 @@ sub new {
     $p->getoptions(\my %opt, qw/
         logfile=s
         timestamp
+        print
         reporter=s
         error_reporter=s
         common_reporter=s
