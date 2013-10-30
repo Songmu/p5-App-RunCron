@@ -2,6 +2,9 @@ Revision history for Perl extension App-RunCron
 
 {{$NEXT}}
 
+0.07 2013-10-30T11:19:55Z
+    - fix deps and tests
+
 0.06 2013-10-30T10:35:58Z
     - fix test cases
     - add `print` option (EXPERIMENTAL)
