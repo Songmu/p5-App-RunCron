@@ -3,7 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
-our $VERSION = "0.05";
+our $VERSION = "0.06";
 
 use Fcntl       qw(SEEK_SET);
 use File::Temp  qw(tempfile);
