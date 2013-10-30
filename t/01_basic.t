@@ -143,20 +143,4 @@ subtest 'invalid reporter' => sub {
     is $runner->exit_code, 0;
 };
 
-
-subtest 'opt print' => sub {
-    my $runner = App::RunCron->new(
-        command   => [$^X, '-e', qq[print "Hello\n"]],
-        print          => 1,
-        reporter       => 'None',
-        error_reporter => 'None',
-    );
-    my ($stdout, $stderr) = capture { $runner->_run };
-
-    ok $stdout;
-    like $stdout, qr/Hello/;
-
-    is $runner->exit_code, 0;
-};
-
 done_testing;
