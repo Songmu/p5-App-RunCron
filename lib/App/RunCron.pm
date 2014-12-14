@@ -13,7 +13,7 @@ use Sys::Hostname;
 use Class::Accessor::Lite (
     new => 1,
     ro  => [qw/timestamp command reporter error_reporter common_reporter tag print announcer/],
-    rw  => [qw/logfile logpos exit_code _finished pid/],
+    rw  => [qw/logfile logpos exit_code _finished _started pid/],
 );
 
 sub _logfh {
@@ -39,7 +39,7 @@ sub _logfh {
 
 sub run {
     my $self = shift;
-    if (!$self->_finished) {
+    if (!$self->_started) {
         $self->_run;
         exit $self->child_exit_code;
     }
@@ -61,6 +61,7 @@ sub _run {
     pipe my $logrh, my $logwh or die "failed to create pipe:$!";
 
     $self->pid($$);
+    $self->_started(1);
     if ($self->announcer) {
         $self->_announce;
     }
