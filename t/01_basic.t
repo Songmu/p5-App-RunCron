@@ -138,7 +138,8 @@ subtest 'invalid reporter' => sub {
     my ($stdout, $stderr) = capture { $runner->_run };
 
     ok !$stdout;
-    like $stderr, qr/Hello\ncommand exited with code:0\nOops!/;
+    like $stderr, qr/Oops/;
+    like $stderr, qr/Hello\ncommand exited with code:0/;
 
     is $runner->exit_code, 0;
 };

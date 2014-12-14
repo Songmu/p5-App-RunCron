@@ -12,8 +12,8 @@ use Sys::Hostname;
 
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/timestamp command reporter error_reporter common_reporter tag print/],
-    rw  => [qw/logfile logpos exit_code _finished/],
+    ro  => [qw/timestamp command reporter error_reporter common_reporter tag print announcer/],
+    rw  => [qw/logfile logpos exit_code _finished pid/],
 );
 
 sub _logfh {
@@ -60,7 +60,10 @@ sub _run {
     my $logfh = $self->_logfh;
     pipe my $logrh, my $logwh or die "failed to create pipe:$!";
 
-    # exec
+    $self->pid($$);
+    if ($self->announcer) {
+        $self->_announce;
+    }
     $self->_log(sprintf("%s tag:[%s] starting: %s\n", hostname, $self->tag || '', $self->command_str));
     $self->exit_code(-1);
     unless (my $pid = fork) {
@@ -165,55 +168,94 @@ sub _send_error_report {
     $self->_do_send_report($reporter, $self->common_reporter || ());
 }
 
+sub _announce {
+    my ($self, @announcers) = @_;
+
+    for my $announcer (@announcers) {
+        eval {
+            if (ref($announcer) && ref($announcer) eq 'CODE') {
+                $announcer->($self);
+            }
+            else {
+                my @announcers = _retrieve_plugins($announcer);
+                for my $r (@announcers) {
+                    my ($class, $arg) = @$r;
+                    _load_announcer($class)->new($arg || ())->run($self);
+                }
+            }
+        };
+        if (my $err = $@) {
+            warn "announcer error occured! $err";
+        }
+    }
+}
+
 sub _do_send_report {
     my ($self, @reporters) = @_;
 
-    eval {
-        # XXX error handling
-        for my $reporter (@reporters) {
+    my $has_error;
+    for my $reporter (@reporters) {
+        eval {
             if (ref($reporter) && ref($reporter) eq 'CODE') {
                 $reporter->($self);
             }
             else {
-                my @reporters = _retrieve_reporters($reporter);
+                my @reporters = _retrieve_plugins($reporter);
 
                 for my $r (@reporters) {
                     my ($class, $arg) = @$r;
                     _load_reporter($class)->new($arg || ())->run($self);
                 }
             }
+        };
+        if (my $err = $@) {
+            $has_error = 1;
+            warn "reporter error occured! $err";
         }
-    };
-    if (my $err = $@) {
+    }
+    if ($has_error) {
         warn $self->report;
-        warn $err;
     }
 }
 
-sub _retrieve_reporters {
-    my $reporter = shift;
-    my @reporters;
-    if (ref $reporter && ref($reporter) eq 'ARRAY') {
-        my @stuffs = @$reporter;
+sub _retrieve_plugins {
+    my $plugin = shift;
+    my @plugins;
+    if (ref $plugin && ref($plugin) eq 'ARRAY') {
+        my @stuffs = @$plugin;
 
         while (@stuffs) {
-            my $reporter_class = shift @stuffs;
+            my $plugin_class = shift @stuffs;
             my $arg;
             if ($stuffs[0] && ref $stuffs[0]) {
                 $arg = shift @stuffs;
             }
-            push @reporters, [$reporter_class, $arg || ()];
+            push @plugins, [$plugin_class, $arg || ()];
         }
     }
     else {
-        push @reporters, [$reporter];
+        push @plugins, [$plugin];
     }
-    @reporters;
+    @plugins;
+}
+
+sub _load_announcer {
+    my $class = shift;
+    my $prefix = 'App::RunCron::Announcer';
+
+    _load_class_with_prefix($class, $prefix);
 }
 
 sub _load_reporter {
     my $class = shift;
     my $prefix = 'App::RunCron::Reporter';
+
+    _load_class_with_prefix($class, $prefix);
+}
+
+sub _load_class_with_prefix {
+    my ($class, $prefix) = @_;
+
     unless ($class =~ s/^\+// || $class =~ /^$prefix/) {
         $class = "$prefix\::$class";
     }
