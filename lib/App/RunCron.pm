@@ -168,9 +168,10 @@ sub _send_error_report {
     $self->_do_send_report($reporter, $self->common_reporter || ());
 }
 
-sub _announce {
-    my ($self, @announcers) = @_;
+sub _invoke_plugins {
+    my ($self, $type, @announcers) = @_;
 
+    my $has_error;
     for my $announcer (@announcers) {
         if (ref($announcer) && ref($announcer) eq 'CODE') {
             $announcer = [Code => $announcer];
@@ -179,35 +180,27 @@ sub _announce {
         for my $r (@announcers) {
             my ($class, $arg) = @$r;
             eval {
-                _load_announcer($class)->new($arg || ())->run($self);
+                $self->can("_load_$type")->($class)->new($arg || ())->run($self);
             };
             if (my $err = $@) {
-                warn "announcer error occured! $err";
+                $has_error = 1;
+                warn "$type error occured! $err";
             }
         }
     }
+    $has_error;
+}
+
+sub _announce {
+    my ($self, @announcers) = @_;
+
+    $self->_invoke_plugins(announcer => @announcers);
 }
 
 sub _do_send_report {
     my ($self, @reporters) = @_;
 
-    my $has_error;
-    for my $reporter (@reporters) {
-        if (ref($reporter) && ref($reporter) eq 'CODE') {
-            $reporter = [Code => $reporter];
-        }
-        my @reporters = _retrieve_plugins($reporter);
-        for my $r (@reporters) {
-            my ($class, $arg) = @$r;
-            eval {
-                _load_reporter($class)->new($arg || ())->run($self);
-            };
-            if (my $err = $@) {
-                $has_error = 1;
-                warn "reporter error occured! $err";
-            }
-        }
-    }
+    my $has_error = $self->_invoke_plugins(reporter => @reporters);
     if ($has_error) {
         warn $self->report;
     }
