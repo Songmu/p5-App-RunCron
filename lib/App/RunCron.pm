@@ -172,20 +172,18 @@ sub _announce {
     my ($self, @announcers) = @_;
 
     for my $announcer (@announcers) {
-        eval {
-            if (ref($announcer) && ref($announcer) eq 'CODE') {
-                $announcer->($self);
+        if (ref($announcer) && ref($announcer) eq 'CODE') {
+            $announcer = [Code => $announcer];
+        }
+        my @announcers = _retrieve_plugins($announcer);
+        for my $r (@announcers) {
+            my ($class, $arg) = @$r;
+            eval {
+                _load_announcer($class)->new($arg || ())->run($self);
+            };
+            if (my $err = $@) {
+                warn "announcer error occured! $err";
             }
-            else {
-                my @announcers = _retrieve_plugins($announcer);
-                for my $r (@announcers) {
-                    my ($class, $arg) = @$r;
-                    _load_announcer($class)->new($arg || ())->run($self);
-                }
-            }
-        };
-        if (my $err = $@) {
-            warn "announcer error occured! $err";
         }
     }
 }
@@ -195,22 +193,19 @@ sub _do_send_report {
 
     my $has_error;
     for my $reporter (@reporters) {
-        eval {
-            if (ref($reporter) && ref($reporter) eq 'CODE') {
-                $reporter->($self);
+        if (ref($reporter) && ref($reporter) eq 'CODE') {
+            $reporter = [Code => $reporter];
+        }
+        my @reporters = _retrieve_plugins($reporter);
+        for my $r (@reporters) {
+            my ($class, $arg) = @$r;
+            eval {
+                _load_reporter($class)->new($arg || ())->run($self);
+            };
+            if (my $err = $@) {
+                $has_error = 1;
+                warn "reporter error occured! $err";
             }
-            else {
-                my @reporters = _retrieve_plugins($reporter);
-
-                for my $r (@reporters) {
-                    my ($class, $arg) = @$r;
-                    _load_reporter($class)->new($arg || ())->run($self);
-                }
-            }
-        };
-        if (my $err = $@) {
-            $has_error = 1;
-            warn "reporter error occured! $err";
         }
     }
     if ($has_error) {
