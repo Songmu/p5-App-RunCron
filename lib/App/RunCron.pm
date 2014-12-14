@@ -172,6 +172,7 @@ sub _invoke_plugins {
     my ($self, $type, @announcers) = @_;
 
     my $has_error;
+    my $prefix = 'App::RunCron::' . ucfirst($type);
     for my $announcer (@announcers) {
         if (ref($announcer) && ref($announcer) eq 'CODE') {
             $announcer = [Code => $announcer];
@@ -180,7 +181,7 @@ sub _invoke_plugins {
         for my $r (@announcers) {
             my ($class, $arg) = @$r;
             eval {
-                $self->can("_load_$type")->($class)->new($arg || ())->run($self);
+                _load_class_with_prefix($class, $prefix)->new($arg || ())->run($self);
             };
             if (my $err = $@) {
                 $has_error = 1;
@@ -200,8 +201,8 @@ sub _announce {
 sub _do_send_report {
     my ($self, @reporters) = @_;
 
-    my $has_error = $self->_invoke_plugins(reporter => @reporters);
-    if ($has_error) {
+    my $err = $self->_invoke_plugins(reporter => @reporters);
+    if ($err) {
         warn $self->report;
     }
 }
@@ -225,20 +226,6 @@ sub _retrieve_plugins {
         push @plugins, [$plugin];
     }
     @plugins;
-}
-
-sub _load_announcer {
-    my $class = shift;
-    my $prefix = 'App::RunCron::Announcer';
-
-    _load_class_with_prefix($class, $prefix);
-}
-
-sub _load_reporter {
-    my $class = shift;
-    my $prefix = 'App::RunCron::Reporter';
-
-    _load_class_with_prefix($class, $prefix);
 }
 
 sub _load_class_with_prefix {

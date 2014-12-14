@@ -28,7 +28,7 @@ sub runcron_yml_ok {
 
         for my $r (@reporters) {
             my ($class, $arg) = @$r;
-            App::RunCron::_load_reporter($class)->new($arg || ());
+            App::RunCron::_load_class_with_prefix($class, 'App::RunCron::Reporter')->new($arg || ());
         }
     };
     my $err = $@;
