@@ -158,6 +158,31 @@ sub report {
     }
 }
 
+sub report_data {
+    my $self = shift;
+    +{
+        report          => $self->report,
+        command         => $self->command_str,
+        result_line     => $self->result_line,
+        is_success      => $self->is_success,
+        child_exit_code => $self->child_exit_code,
+        exit_code       => $self->exit_code,
+        child_signal    => $self->child_signal,
+        pid             => $self->pid,
+        (defined $self->tag ? (tag => $self->tag) : ()),
+    };
+}
+
+sub announce_data {
+    my $self = shift;
+    +{
+        command   => $self->command_str,
+        pid       => $self->pid,
+        child_pid => $self->child_pid,
+        logfile   => $self->logfile,
+    };
+}
+
 sub _send_report {
     my $self = shift;
 
