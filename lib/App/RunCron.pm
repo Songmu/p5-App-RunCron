@@ -12,12 +12,13 @@ use Sys::Hostname;
 
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/timestamp command reporter error_reporter common_reporter tag print/],
-    rw  => [qw/logfile logpos exit_code _finished/],
+    ro  => [qw/timestamp command reporter error_reporter common_reporter tag print announcer/],
+    rw  => [qw/logfile logpos exit_code _finished _started pid child_pid/],
 );
 
 sub _logfh {
     my $self = shift;
+    return if $self->child_pid;
 
     $self->{_logfh} ||= do {
         my $logfh;
@@ -39,7 +40,7 @@ sub _logfh {
 
 sub run {
     my $self = shift;
-    if (!$self->_finished) {
+    if (!$self->_started) {
         $self->_run;
         exit $self->child_exit_code;
     }
@@ -60,7 +61,8 @@ sub _run {
     my $logfh = $self->_logfh;
     pipe my $logrh, my $logwh or die "failed to create pipe:$!";
 
-    # exec
+    $self->pid($$);
+    $self->_started(1);
     $self->_log(sprintf("%s tag:[%s] starting: %s\n", hostname, $self->tag || '', $self->command_str));
     $self->exit_code(-1);
     unless (my $pid = fork) {
@@ -68,6 +70,11 @@ sub _run {
             # child process
             close $logrh;
             close $logfh;
+
+            $self->child_pid($$);
+            if ($self->announcer) {
+                $self->_announce;
+            }
             open STDERR, '>&', $logwh or die "failed to redirect STDERR to logfile";
             open STDOUT, '>&', $logwh or die "failed to redirect STDOUT to logfile";
             close $logwh;
@@ -165,55 +172,69 @@ sub _send_error_report {
     $self->_do_send_report($reporter, $self->common_reporter || ());
 }
 
+sub _invoke_plugins {
+    my ($self, $type, @plugins) = @_;
+
+    my $has_error;
+    my $prefix = 'App::RunCron::' . ucfirst($type);
+    for my $plugin (@plugins) {
+        if (ref($plugin) && ref($plugin) eq 'CODE') {
+            $plugin = [Code => $plugin];
+        }
+        my @plugins = _retrieve_plugins($plugin);
+        for my $r (@plugins) {
+            my ($class, $arg) = @$r;
+            eval {
+                _load_class_with_prefix($class, $prefix)->new($arg || ())->run($self);
+            };
+            if (my $err = $@) {
+                $has_error = 1;
+                warn "$type error occured! $err";
+            }
+        }
+    }
+    $has_error;
+}
+
+sub _announce {
+    my $self = shift;
+
+    $self->_invoke_plugins(announcer => $self->announcer);
+}
+
 sub _do_send_report {
     my ($self, @reporters) = @_;
 
-    eval {
-        # XXX error handling
-        for my $reporter (@reporters) {
-            if (ref($reporter) && ref($reporter) eq 'CODE') {
-                $reporter->($self);
-            }
-            else {
-                my @reporters = _retrieve_reporters($reporter);
-
-                for my $r (@reporters) {
-                    my ($class, $arg) = @$r;
-                    _load_reporter($class)->new($arg || ())->run($self);
-                }
-            }
-        }
-    };
-    if (my $err = $@) {
+    my $err = $self->_invoke_plugins(reporter => @reporters);
+    if ($err) {
         warn $self->report;
-        warn $err;
     }
 }
 
-sub _retrieve_reporters {
-    my $reporter = shift;
-    my @reporters;
-    if (ref $reporter && ref($reporter) eq 'ARRAY') {
-        my @stuffs = @$reporter;
+sub _retrieve_plugins {
+    my $plugin = shift;
+    my @plugins;
+    if (ref $plugin && ref($plugin) eq 'ARRAY') {
+        my @stuffs = @$plugin;
 
         while (@stuffs) {
-            my $reporter_class = shift @stuffs;
+            my $plugin_class = shift @stuffs;
             my $arg;
             if ($stuffs[0] && ref $stuffs[0]) {
                 $arg = shift @stuffs;
             }
-            push @reporters, [$reporter_class, $arg || ()];
+            push @plugins, [$plugin_class, $arg || ()];
         }
     }
     else {
-        push @reporters, [$reporter];
+        push @plugins, [$plugin];
     }
-    @reporters;
+    @plugins;
 }
 
-sub _load_reporter {
-    my $class = shift;
-    my $prefix = 'App::RunCron::Reporter';
+sub _load_class_with_prefix {
+    my ($class, $prefix) = @_;
+
     unless ($class =~ s/^\+// || $class =~ /^$prefix/) {
         $class = "$prefix\::$class";
     }
@@ -227,6 +248,8 @@ sub _load_reporter {
 
 sub _log {
     my ($self, $line) = @_;
+    return if $self->child_pid;
+
     my $logfh = $self->_logfh;
     print $logfh (
         ($self->timestamp ? _timestamp() : ''),

@@ -23,12 +23,12 @@ sub runcron_yml_ok {
         my @reporters;
 
         for my $reporter_kind (qw/reporter error_reporter common_reporter/) {
-            push @reporters, App::RunCron::_retrieve_reporters($conf->{$reporter_kind}) if $conf->{$reporter_kind};
+            push @reporters, App::RunCron::_retrieve_plugins($conf->{$reporter_kind}) if $conf->{$reporter_kind};
         }
 
         for my $r (@reporters) {
             my ($class, $arg) = @$r;
-            App::RunCron::_load_reporter($class)->new($arg || ());
+            App::RunCron::_load_class_with_prefix($class, 'App::RunCron::Reporter')->new($arg || ());
         }
     };
     my $err = $@;

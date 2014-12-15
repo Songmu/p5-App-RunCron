@@ -24,12 +24,13 @@ sub new {
         reporter=s
         error_reporter=s
         common_reporter=s
+        announcer=s
         tag|t=s
         config|c=s
     /) or pod2usage(1);
 
     $opt{command} = [@ARGV];
-    for my $rep (qw/reporter error_reporter/){
+    for my $rep (qw/reporter error_reporter announcer/){
         $opt{$rep} = ucfirst $opt{$rep} if $opt{$rep};
     }
     $class->new_with_options(%opt);
