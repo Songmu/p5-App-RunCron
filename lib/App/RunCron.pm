@@ -13,11 +13,12 @@ use Sys::Hostname;
 use Class::Accessor::Lite (
     new => 1,
     ro  => [qw/timestamp command reporter error_reporter common_reporter tag print announcer/],
-    rw  => [qw/logfile logpos exit_code _finished _started pid/],
+    rw  => [qw/logfile logpos exit_code _finished _started pid child_pid/],
 );
 
 sub _logfh {
     my $self = shift;
+    return if $self->child_pid;
 
     $self->{_logfh} ||= do {
         my $logfh;
@@ -62,9 +63,6 @@ sub _run {
 
     $self->pid($$);
     $self->_started(1);
-    if ($self->announcer) {
-        $self->_announce;
-    }
     $self->_log(sprintf("%s tag:[%s] starting: %s\n", hostname, $self->tag || '', $self->command_str));
     $self->exit_code(-1);
     unless (my $pid = fork) {
@@ -72,6 +70,11 @@ sub _run {
             # child process
             close $logrh;
             close $logfh;
+
+            $self->child_pid($$);
+            if ($self->announcer) {
+                $self->_announce;
+            }
             open STDERR, '>&', $logwh or die "failed to redirect STDERR to logfile";
             open STDOUT, '>&', $logwh or die "failed to redirect STDOUT to logfile";
             close $logwh;
@@ -170,16 +173,16 @@ sub _send_error_report {
 }
 
 sub _invoke_plugins {
-    my ($self, $type, @announcers) = @_;
+    my ($self, $type, @plugins) = @_;
 
     my $has_error;
     my $prefix = 'App::RunCron::' . ucfirst($type);
-    for my $announcer (@announcers) {
-        if (ref($announcer) && ref($announcer) eq 'CODE') {
-            $announcer = [Code => $announcer];
+    for my $plugin (@plugins) {
+        if (ref($plugin) && ref($plugin) eq 'CODE') {
+            $plugin = [Code => $plugin];
         }
-        my @announcers = _retrieve_plugins($announcer);
-        for my $r (@announcers) {
+        my @plugins = _retrieve_plugins($plugin);
+        for my $r (@plugins) {
             my ($class, $arg) = @$r;
             eval {
                 _load_class_with_prefix($class, $prefix)->new($arg || ())->run($self);
@@ -194,9 +197,9 @@ sub _invoke_plugins {
 }
 
 sub _announce {
-    my ($self, @announcers) = @_;
+    my $self = shift;
 
-    $self->_invoke_plugins(announcer => @announcers);
+    $self->_invoke_plugins(announcer => $self->announcer);
 }
 
 sub _do_send_report {
@@ -245,6 +248,8 @@ sub _load_class_with_prefix {
 
 sub _log {
     my ($self, $line) = @_;
+    return if $self->child_pid;
+
     my $logfh = $self->_logfh;
     print $logfh (
         ($self->timestamp ? _timestamp() : ''),

@@ -144,4 +144,36 @@ subtest 'invalid reporter' => sub {
     is $runner->exit_code, 0;
 };
 
+subtest 'announcer' => sub {
+    my $runner = App::RunCron->new(
+        command   => [$^X, '-e', qq[print "Hello\n"]],
+        announcer => sub {
+            my $r = shift;
+            print STDERR $r->pid;
+        },
+    );
+    my ($stdout, $stderr) = capture { $runner->_run };
+
+    ok !$stdout;
+    is $stderr, $$;
+
+    is $runner->exit_code, 0;
+};
+
+subtest 'invalid announcer' => sub {
+    my $runner = App::RunCron->new(
+        command   => [$^X, '-e', qq[print "Hello\n"]],
+        announcer => sub {
+            die 'Oops';
+        },
+        reporter => 'Stdout',
+    );
+    my ($stdout, $stderr) = capture { $runner->_run };
+
+    like $stdout, qr/Hello\ncommand exited with code:0$/;
+    like $stderr, qr/Oops/;
+
+    is $runner->exit_code, 0;
+};
+
 done_testing;
