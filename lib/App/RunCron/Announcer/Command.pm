@@ -5,14 +5,15 @@ use JSON::PP;
 
 sub new {
     my ($class, $command) = @_;
-    bless \$command, $class;
+    $command = ref $command ? $command : [$command];
+    bless $command, $class;
 }
 
 sub run {
-    my ($self, $runner) = shift;
+    my ($self, $runner) = @_;
 
-    open my $pipe, '|-', $$self or die $!;
-    print $pipe encode_json($self->announce_data);
+    open my $pipe, '|-', @$self or die $!;
+    print $pipe encode_json($runner->announce_data);
     close $pipe;
 }
 

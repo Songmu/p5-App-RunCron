@@ -245,7 +245,7 @@ sub _retrieve_plugins {
         while (@stuffs) {
             my $plugin_class = shift @stuffs;
             my $arg;
-            if ($stuffs[0] && ref $stuffs[0]) {
+            if ($stuffs[0] && (ref($stuffs[0]) || $plugin_class eq 'Command')) {
                 $arg = shift @stuffs;
             }
             push @plugins, [$plugin_class, $arg || ()];
