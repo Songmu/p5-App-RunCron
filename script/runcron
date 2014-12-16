@@ -15,6 +15,7 @@ runcron - cron-runner
     % runcron [options] -- [command]
         --logfile=s         # log file               (Optional)
         --timestamp         # add timestamp or not   (Default: undef)
+        --announcer=s       # announcer              (Optional)
         --reporter=s        # reporter               (Default: None)
         --error_reporter=s  # error_reporter         (Default: Stdout)
         --common_reporter=s # common_reporter        (Optional)
@@ -35,8 +36,8 @@ like as follows.
     timestamp: 1
     reporter:  Stdout
     error_reporter:
-        - Stdout
-        - "+MyApp::Reporter::IRC"
+      - Stdout
+      - "+MyApp::Reporter::IRC"
 
 =head3 SEE ALSO
 

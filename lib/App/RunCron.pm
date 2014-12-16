@@ -381,6 +381,10 @@ If you want to load a plugin in your own name space, use the '+' character befor
 
     reporter => '+MyApp::Reporter::Foo', # => loads MyApp::Reporter::Foo
 
+=head2 announcer
+
+Package name of an "Announcer" which annouce job information before running the job. (Optional)
+
 =head2 METHODS AND ACCESORS
 
 =head3 C<< $self->run >>
