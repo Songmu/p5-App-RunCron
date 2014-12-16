@@ -1,6 +1,8 @@
 Revision history for Perl extension App-RunCron
 
 {{$NEXT}}
+    - [feature] Announcer
+    - [feature] Announcer::Command Reporter::Command
 
 0.07 2013-10-30T11:19:55Z
     - fix deps and tests
