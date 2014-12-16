@@ -13,7 +13,10 @@ sub run {
     my ($self, $runner) = @_;
 
     open my $pipe, '|-', @$self or die $!;
-    print $pipe encode_json($runner->report_data);
+
+    my $d = $runner->report_data;
+    $d->{is_success} = $d->{is_success} ? $JSON::PP::true : $JSON::PP::false;
+    print $pipe encode_json($d);
     close $pipe;
 }
 
