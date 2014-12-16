@@ -23,16 +23,7 @@ sub run {
     my ($self, $runcron) = @_;
 
     my $logger = Fluent::Logger->new(%{ $self->{args} });
-    $logger->post($self->{tag} => {
-        report          => $runcron->report,
-        command         => join(' ', @{ $runcron->command }),
-        result_line     => $runcron->result_line,
-        is_success      => $runcron->is_success,
-        child_exit_code => $runcron->child_exit_code,
-        exit_code       => $runcron->exit_code,
-        child_signal    => $runcron->child_signal,
-        (defined $runcron->tag ? (tag => $runcron->tag) : ()),
-    });
+    $logger->post($self->{tag} => $runcron->report_data);
 }
 
 1;

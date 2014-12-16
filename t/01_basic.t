@@ -176,4 +176,38 @@ subtest 'invalid announcer' => sub {
     is $runner->exit_code, 0;
 };
 
+subtest 'command reporter' => sub {
+    subtest 'string' => sub {
+        my $runner = App::RunCron->new(
+            command   => [$^X, '-e', qq[print "Hello\n"]],
+            reporter => [Command => "$^X -e 'print while <>'"],
+        );
+        my ($stdout, $stderr) = capture { $runner->_run };
+
+        like $stdout, qr/command exited with code:0/;
+        is $runner->exit_code, 0;
+    };
+    subtest 'array' => sub {
+        my $runner = App::RunCron->new(
+            command   => [$^X, '-e', qq[print "Hello\n"]],
+            reporter => [Command => [$^X, '-e', 'print while <>']],
+        );
+        my ($stdout, $stderr) = capture { $runner->_run };
+
+        like $stdout, qr/command exited with code:0/;
+        is $runner->exit_code, 0;
+    };
+};
+
+subtest 'command announcer' => sub {
+    my $runner = App::RunCron->new(
+        command   => [$^X, '-e', qq[print "Hello\n"]],
+        announcer => [Command => [$^X, '-e', 'warn $_ while <>']],
+    );
+    my ($stdout, $stderr) = capture { $runner->_run };
+    ok !$stdout;
+    like $stderr, qr/$$/;
+    is $runner->exit_code, 0;
+};
+
 done_testing;
