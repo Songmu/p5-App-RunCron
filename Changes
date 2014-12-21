@@ -1,6 +1,8 @@
 Revision history for Perl extension App-RunCron
 
 {{$NEXT}}
+
+0.08 2014-12-21T07:14:02Z
     - [feature] Announcer
     - [feature] Announcer::Command Reporter::Command
 

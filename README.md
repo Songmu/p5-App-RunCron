@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Songmu/p5-App-RunCron.png?branch=master)](https://travis-ci.org/Songmu/p5-App-RunCron) [![Coverage Status](https://coveralls.io/repos/Songmu/p5-App-RunCron/badge.png?branch=master)](https://coveralls.io/r/Songmu/p5-App-RunCron?branch=master)
+[![Build Status](https://travis-ci.org/Songmu/p5-App-RunCron.svg?branch=master)](https://travis-ci.org/Songmu/p5-App-RunCron) [![Coverage Status](https://img.shields.io/coveralls/Songmu/p5-App-RunCron/master.svg)](https://coveralls.io/r/Songmu/p5-App-RunCron?branch=master)
 # NAME
 
 App::RunCron - making wrapper script for crontab
@@ -64,13 +64,17 @@ The `reporter`, `error_reporter` and `common_reporter` can be like following.
 - `[$module_name[, \%opt], ...]`
 - `$coderef`
 
-_$module\_name_ package name of the plugin. You can write it as two form like [Plack::Middleware](http://search.cpan.org/perldoc?Plack::Middleware):
+_$module\_name_ package name of the plugin. You can write it as two form like [Plack::Middleware](https://metacpan.org/pod/Plack::Middleware):
 
     reporter => 'Stdout',    # => loads App::RunCron::Reporter::Stdout
 
 If you want to load a plugin in your own name space, use the '+' character before a package name, like following:
 
     reporter => '+MyApp::Reporter::Foo', # => loads MyApp::Reporter::Foo
+
+## announcer
+
+Package name of an "Announcer" which announce job information before running the job. (Optional)
 
 ## METHODS AND ACCESORS
 
@@ -104,7 +108,7 @@ signal number if chile process accepted a signal.
 
 # SEE ALSO
 
-[runcron](http://search.cpan.org/perldoc?runcron), [cronlog](https://github.com/kazuho/kaztools/blob/master/cronlog)
+[runcron](https://metacpan.org/pod/runcron), [cronlog](https://github.com/kazuho/kaztools/blob/master/cronlog)
 
 # LICENSE
 

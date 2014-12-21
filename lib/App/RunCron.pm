@@ -3,7 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
-our $VERSION = "0.07";
+our $VERSION = "0.08";
 
 use Fcntl       qw(SEEK_SET);
 use File::Temp  qw(tempfile);
@@ -383,7 +383,7 @@ If you want to load a plugin in your own name space, use the '+' character befor
 
 =head2 announcer
 
-Package name of an "Announcer" which annouce job information before running the job. (Optional)
+Package name of an "Announcer" which announce job information before running the job. (Optional)
 
 =head2 METHODS AND ACCESORS
 
